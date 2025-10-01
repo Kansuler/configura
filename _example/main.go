@@ -19,18 +19,18 @@ func main() {
 	// TIMEOUT_SECONDS is not set, so its fallback will be used.
 
 	// --- Initialize Configura ---
-	cfg := configura.NewConfigImpl()
+	cfg := configura.New()
 
 	// Load environment variables with fallbacks
-	configura.LoadEnvironment(cfg, config.DATABASE_URL, "postgres://fallback_user:fallback_pass@localhost:5432/fallback_db")
-	configura.LoadEnvironment(cfg, config.PORT, 3000)  // Fallback port 3000
-	configura.LoadEnvironment(cfg, config.API_KEY, "") // Fallback empty string if not set
-	configura.LoadEnvironment(cfg, config.ENABLE_FEATURE_X, false)
-	configura.LoadEnvironment(cfg, config.TIMEOUT_SECONDS, int64(30)) // Fallback 30 seconds
-	configura.LoadEnvironment(cfg, subpackage.SUBPACKAGE_DEFINED_CONFIG, "default_value")
+	configura.Load(cfg, config.DATABASE_URL, "postgres://fallback_user:fallback_pass@localhost:5432/fallback_db")
+	configura.Load(cfg, config.PORT, 3000)  // Fallback port 3000
+	configura.Load(cfg, config.API_KEY, "") // Fallback empty string if not set
+	configura.Load(cfg, config.ENABLE_FEATURE_X, false)
+	configura.Load(cfg, config.TIMEOUT_SECONDS, int64(30)) // Fallback 30 seconds
+	configura.Load(cfg, subpackage.SUBPACKAGE_DEFINED_CONFIG, "default_value")
 
 	// Set the configuration by yourself
-	cfg.RegInt64[config.TIMEOUT_SECONDS] = int64(25)
+	configura.Write(cfg, map[configura.Variable[int64]]int64{config.TIMEOUT_SECONDS: 25})
 
 	err := subpackage.Initialize(cfg)
 	if err != nil {

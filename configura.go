@@ -33,7 +33,7 @@ type Config interface {
 	Float32(key Variable[float32]) float32
 	Float64(key Variable[float64]) float64
 	Bool(key Variable[bool]) bool
-	ConfigurationKeysRegistered(keys ...any) error
+	Exists(keys ...any) error
 }
 
 // Write is a generic function that writes configuration values to the provided configuration struct.
@@ -44,7 +44,7 @@ func Write[T constraint](cfg Config, values map[Variable[T]]T) error {
 		return errors.New("Config cannot be nil")
 	}
 
-	typecastCfg, ok := cfg.(*ConfigImpl) // Type assertion to *ConfigImpl
+	typecastCfg, ok := cfg.(*config) // Type assertion to *ConfigImpl
 	if !ok {
 		return errors.New("invalid configuration type, expected *ConfigImpl")
 	}
@@ -93,10 +93,10 @@ func Write[T constraint](cfg Config, values map[Variable[T]]T) error {
 	return nil
 }
 
-// LoadEnvironment is a generic function that loads an environment variable into the provided configuration,
+// Load is a generic function that loads an environment variable into the provided configuration,
 // using the specified key and fallback value. It uses type assertions to determine the type of the key
 // and fallback value, and registers the variable in the appropriate map of the configuration struct.
-func LoadEnvironment[T constraint](config *ConfigImpl, key Variable[T], fallback T) {
+func Load[T constraint](config *config, key Variable[T], fallback T) {
 	config.rwLock.Lock()
 	defer config.rwLock.Unlock()
 	switch any(key).(type) {
@@ -137,9 +137,9 @@ func LoadEnvironment[T constraint](config *ConfigImpl, key Variable[T], fallback
 	}
 }
 
-// ConfigImpl is a concrete implementation of the Config interface, holding maps for each type of configuration
+// config is a concrete implementation of the Config interface, holding maps for each type of configuration
 // variable. It provides methods to retrieve values for each type and checks if all required keys are registered.
-type ConfigImpl struct {
+type config struct {
 	rwLock     sync.RWMutex
 	regString  map[Variable[string]]string
 	regInt     map[Variable[int]]int
@@ -160,8 +160,8 @@ type ConfigImpl struct {
 	regBool    map[Variable[bool]]bool
 }
 
-func NewConfigImpl() *ConfigImpl {
-	return &ConfigImpl{
+func New() *config {
+	return &config{
 		regString:  make(map[Variable[string]]string),
 		regInt:     make(map[Variable[int]]int),
 		regInt8:    make(map[Variable[int8]]int8),
@@ -182,9 +182,9 @@ func NewConfigImpl() *ConfigImpl {
 	}
 }
 
-var _ Config = (*ConfigImpl)(nil)
+var _ Config = (*config)(nil)
 
-func (c *ConfigImpl) String(key Variable[string]) string {
+func (c *config) String(key Variable[string]) string {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regString[key]; exists {
@@ -193,7 +193,7 @@ func (c *ConfigImpl) String(key Variable[string]) string {
 	return ""
 }
 
-func (c *ConfigImpl) Int(key Variable[int]) int {
+func (c *config) Int(key Variable[int]) int {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regInt[key]; exists {
@@ -202,7 +202,7 @@ func (c *ConfigImpl) Int(key Variable[int]) int {
 	return 0
 }
 
-func (c *ConfigImpl) Int8(key Variable[int8]) int8 {
+func (c *config) Int8(key Variable[int8]) int8 {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regInt8[key]; exists {
@@ -211,7 +211,7 @@ func (c *ConfigImpl) Int8(key Variable[int8]) int8 {
 	return 0
 }
 
-func (c *ConfigImpl) Int16(key Variable[int16]) int16 {
+func (c *config) Int16(key Variable[int16]) int16 {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regInt16[key]; exists {
@@ -220,7 +220,7 @@ func (c *ConfigImpl) Int16(key Variable[int16]) int16 {
 	return 0
 }
 
-func (c *ConfigImpl) Int32(key Variable[int32]) int32 {
+func (c *config) Int32(key Variable[int32]) int32 {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regInt32[key]; exists {
@@ -229,7 +229,7 @@ func (c *ConfigImpl) Int32(key Variable[int32]) int32 {
 	return 0
 }
 
-func (c *ConfigImpl) Int64(key Variable[int64]) int64 {
+func (c *config) Int64(key Variable[int64]) int64 {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regInt64[key]; exists {
@@ -238,7 +238,7 @@ func (c *ConfigImpl) Int64(key Variable[int64]) int64 {
 	return 0
 }
 
-func (c *ConfigImpl) Uint(key Variable[uint]) uint {
+func (c *config) Uint(key Variable[uint]) uint {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regUint[key]; exists {
@@ -247,7 +247,7 @@ func (c *ConfigImpl) Uint(key Variable[uint]) uint {
 	return 0
 }
 
-func (c *ConfigImpl) Uint8(key Variable[uint8]) uint8 {
+func (c *config) Uint8(key Variable[uint8]) uint8 {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regUint8[key]; exists {
@@ -256,7 +256,7 @@ func (c *ConfigImpl) Uint8(key Variable[uint8]) uint8 {
 	return 0
 }
 
-func (c *ConfigImpl) Uint16(key Variable[uint16]) uint16 {
+func (c *config) Uint16(key Variable[uint16]) uint16 {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regUint16[key]; exists {
@@ -265,7 +265,7 @@ func (c *ConfigImpl) Uint16(key Variable[uint16]) uint16 {
 	return 0
 }
 
-func (c *ConfigImpl) Uint32(key Variable[uint32]) uint32 {
+func (c *config) Uint32(key Variable[uint32]) uint32 {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regUint32[key]; exists {
@@ -274,7 +274,7 @@ func (c *ConfigImpl) Uint32(key Variable[uint32]) uint32 {
 	return 0
 }
 
-func (c *ConfigImpl) Uint64(key Variable[uint64]) uint64 {
+func (c *config) Uint64(key Variable[uint64]) uint64 {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regUint64[key]; exists {
@@ -283,7 +283,7 @@ func (c *ConfigImpl) Uint64(key Variable[uint64]) uint64 {
 	return 0
 }
 
-func (c *ConfigImpl) Uintptr(key Variable[uintptr]) uintptr {
+func (c *config) Uintptr(key Variable[uintptr]) uintptr {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regUintptr[key]; exists {
@@ -292,7 +292,7 @@ func (c *ConfigImpl) Uintptr(key Variable[uintptr]) uintptr {
 	return 0
 }
 
-func (c *ConfigImpl) Bytes(key Variable[[]byte]) []byte {
+func (c *config) Bytes(key Variable[[]byte]) []byte {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regBytes[key]; exists {
@@ -301,7 +301,7 @@ func (c *ConfigImpl) Bytes(key Variable[[]byte]) []byte {
 	return nil
 }
 
-func (c *ConfigImpl) Runes(key Variable[[]rune]) []rune {
+func (c *config) Runes(key Variable[[]rune]) []rune {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regRunes[key]; exists {
@@ -310,7 +310,7 @@ func (c *ConfigImpl) Runes(key Variable[[]rune]) []rune {
 	return nil
 }
 
-func (c *ConfigImpl) Float32(key Variable[float32]) float32 {
+func (c *config) Float32(key Variable[float32]) float32 {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regFloat32[key]; exists {
@@ -319,7 +319,7 @@ func (c *ConfigImpl) Float32(key Variable[float32]) float32 {
 	return 0.0
 }
 
-func (c *ConfigImpl) Float64(key Variable[float64]) float64 {
+func (c *config) Float64(key Variable[float64]) float64 {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regFloat64[key]; exists {
@@ -328,7 +328,7 @@ func (c *ConfigImpl) Float64(key Variable[float64]) float64 {
 	return 0.0
 }
 
-func (c *ConfigImpl) Bool(key Variable[bool]) bool {
+func (c *config) Bool(key Variable[bool]) bool {
 	c.rwLock.RLock()
 	defer c.rwLock.RUnlock()
 	if value, exists := c.regBool[key]; exists {
@@ -337,18 +337,18 @@ func (c *ConfigImpl) Bool(key Variable[bool]) bool {
 	return false
 }
 
-// missingVariableError is an error type that holds a list of missing configuration variable keys.
-type missingVariableError struct {
+// MissingVariableError is an error type that holds a list of missing configuration variable keys.
+type MissingVariableError struct {
 	Keys []string
 }
 
 // Error implements the error interface for missingVariableError.
-func (e missingVariableError) Error() string {
+func (e MissingVariableError) Error() string {
 	return "missing configuration variables: " + formatKeys(e.Keys)
 }
 
 // Unwrap implements the Unwrap method for the error interface, allowing the error to be unwrapped to ErrMissingVariable.
-func (e missingVariableError) Unwrap() error {
+func (e MissingVariableError) Unwrap() error {
 	return ErrMissingVariable
 }
 
@@ -367,11 +367,11 @@ func formatKeys(keys []string) string {
 	return result
 }
 
-var _ error = (*missingVariableError)(nil)
+var _ error = (*MissingVariableError)(nil)
 
 // checkKey checks if the provided key exists in the configuration. It uses type assertion to determine the type of the
 // key and checks the corresponding map in the configuration struct.
-func (c *ConfigImpl) checkKey(key any) (string, bool) {
+func (c *config) checkKey(key any) (string, bool) {
 	var exists bool
 	var keyName string
 	c.rwLock.RLock()
@@ -433,9 +433,9 @@ func (c *ConfigImpl) checkKey(key any) (string, bool) {
 	return keyName, exists
 }
 
-// ConfigurationKeysRegistered checks if all provided keys are registered in the configuration. To ensure that the
+// Exists checks if all provided keys are registered in the configuration. To ensure that the
 // client of the package have taken all required keys into consideration when building the configuration object.
-func (c *ConfigImpl) ConfigurationKeysRegistered(keys ...any) error {
+func (c *config) Exists(keys ...any) error {
 	var missingKeys []string
 	for _, key := range keys {
 		if keyName, ok := c.checkKey(key); !ok {
@@ -444,7 +444,7 @@ func (c *ConfigImpl) ConfigurationKeysRegistered(keys ...any) error {
 	}
 
 	if len(missingKeys) > 0 {
-		return missingVariableError{Keys: missingKeys}
+		return MissingVariableError{Keys: missingKeys}
 	}
 
 	return nil
@@ -464,12 +464,12 @@ func Fallback[T comparable](value T, fallback T) T {
 // To ensure a consistent view of the source configurations, it locks all
 // configuration types for reading during the merge operation.
 func Merge(cfgs ...Config) Config {
-	merged := NewConfigImpl()
+	merged := New()
 	merged.rwLock.Lock()
 	defer merged.rwLock.Unlock()
 
 	for _, cfg := range cfgs {
-		if c, ok := cfg.(*ConfigImpl); ok {
+		if c, ok := cfg.(*config); ok {
 			c.rwLock.RLock()
 			defer c.rwLock.RUnlock()
 			maps.Copy(merged.regString, c.regString)
