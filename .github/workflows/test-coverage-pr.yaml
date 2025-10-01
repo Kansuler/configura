@@ -19,7 +19,7 @@ jobs:
       - name: Test with the Go CLI
         if: always()
         id: test
-        run: go test -coverprofile=unit.coverage.out ./...
+        run: go test -race -v -coverprofile=unit.coverage.out ./...
       - name: Upload coverage report
         if: always()
         id: coverage
