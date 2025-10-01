@@ -14,7 +14,7 @@ type ThreadSafetySuite struct {
 }
 
 func (s *ThreadSafetySuite) SetupTest() {
-	s.config = NewConfigImpl()
+	s.config = New()
 }
 
 func (s *ThreadSafetySuite) runConcurrently(goroutines int, f func(i int)) {

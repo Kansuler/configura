@@ -22,7 +22,7 @@ var RequiredUserServiceKeys = []any{
 // It validates that all required configuration keys are registered.
 func Initialize(cfg configura.Config) error {
 	// Validate that the config instance has all the keys our service needs
-	if err := cfg.ConfigurationKeysRegistered(RequiredUserServiceKeys...); err != nil {
+	if err := cfg.Exists(RequiredUserServiceKeys...); err != nil {
 		return fmt.Errorf("user service configuration validation failed: %w", err)
 	}
 
