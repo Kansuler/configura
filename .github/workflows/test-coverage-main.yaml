@@ -20,7 +20,7 @@ jobs:
         run: go mod vendor
       - name: Test with the Go CLI
         id: test
-        run: go test -coverprofile=unit.coverage.out ./...
+        run: go test -race -v -coverprofile=unit.coverage.out ./...
       - name: Upload coverage report
         id: coverage
         env:

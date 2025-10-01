@@ -3,6 +3,7 @@ package configura
 import (
 	"errors"
 	"maps"
+	"sync"
 )
 
 var ErrMissingVariable = errors.New("missing configuration variables")
@@ -35,208 +36,302 @@ type Config interface {
 	ConfigurationKeysRegistered(keys ...any) error
 }
 
+// Write is a generic function that writes configuration values to the provided configuration struct.
+// It uses type assertions to determine the type of the values and writes them to the appropriate map in the
+// configuration struct.
+func Write[T constraint](cfg Config, values map[Variable[T]]T) error {
+	if cfg == nil {
+		return errors.New("Config cannot be nil")
+	}
+
+	typecastCfg, ok := cfg.(*ConfigImpl) // Type assertion to *ConfigImpl
+	if !ok {
+		return errors.New("invalid configuration type, expected *ConfigImpl")
+	}
+
+	typecastCfg.rwLock.Lock()
+	defer typecastCfg.rwLock.Unlock()
+	switch v := any(values).(type) {
+	case map[Variable[string]]string:
+		maps.Copy(typecastCfg.regString, v)
+	case map[Variable[int]]int:
+		maps.Copy(typecastCfg.regInt, v)
+	case map[Variable[int8]]int8:
+		maps.Copy(typecastCfg.regInt8, v)
+	case map[Variable[int16]]int16:
+		maps.Copy(typecastCfg.regInt16, v)
+	case map[Variable[int32]]int32:
+		maps.Copy(typecastCfg.regInt32, v)
+	case map[Variable[int64]]int64:
+		maps.Copy(typecastCfg.regInt64, v)
+	case map[Variable[uint]]uint:
+		maps.Copy(typecastCfg.regUint, v)
+	case map[Variable[uint8]]uint8:
+		maps.Copy(typecastCfg.regUint8, v)
+	case map[Variable[uint16]]uint16:
+		maps.Copy(typecastCfg.regUint16, v)
+	case map[Variable[uint32]]uint32:
+		maps.Copy(typecastCfg.regUint32, v)
+	case map[Variable[uint64]]uint64:
+		maps.Copy(typecastCfg.regUint64, v)
+	case map[Variable[uintptr]]uintptr:
+		maps.Copy(typecastCfg.regUintptr, v)
+	case map[Variable[[]byte]][]byte:
+		maps.Copy(typecastCfg.regBytes, v)
+	case map[Variable[[]rune]][]rune:
+		maps.Copy(typecastCfg.regRunes, v)
+	case map[Variable[float32]]float32:
+		maps.Copy(typecastCfg.regFloat32, v)
+	case map[Variable[float64]]float64:
+		maps.Copy(typecastCfg.regFloat64, v)
+	case map[Variable[bool]]bool:
+		maps.Copy(typecastCfg.regBool, v)
+	default:
+		return errors.New("unsupported values type")
+	}
+
+	return nil
+}
+
 // LoadEnvironment is a generic function that loads an environment variable into the provided configuration,
 // using the specified key and fallback value. It uses type assertions to determine the type of the key
 // and fallback value, and registers the variable in the appropriate map of the configuration struct.
 func LoadEnvironment[T constraint](config *ConfigImpl, key Variable[T], fallback T) {
+	config.rwLock.Lock()
+	defer config.rwLock.Unlock()
 	switch any(key).(type) {
 	case Variable[string]:
-		config.RegString[any(key).(Variable[string])] = String(any(key).(Variable[string]), any(fallback).(string))
+		config.regString[any(key).(Variable[string])] = String(any(key).(Variable[string]), any(fallback).(string))
 	case Variable[int]:
-		config.RegInt[any(key).(Variable[int])] = Int(any(key).(Variable[int]), any(fallback).(int))
+		config.regInt[any(key).(Variable[int])] = Int(any(key).(Variable[int]), any(fallback).(int))
 	case Variable[int8]:
-		config.RegInt8[any(key).(Variable[int8])] = Int8(any(key).(Variable[int8]), any(fallback).(int8))
+		config.regInt8[any(key).(Variable[int8])] = Int8(any(key).(Variable[int8]), any(fallback).(int8))
 	case Variable[int16]:
-		config.RegInt16[any(key).(Variable[int16])] = Int16(any(key).(Variable[int16]), any(fallback).(int16))
+		config.regInt16[any(key).(Variable[int16])] = Int16(any(key).(Variable[int16]), any(fallback).(int16))
 	case Variable[int32]:
-		config.RegInt32[any(key).(Variable[int32])] = Int32(any(key).(Variable[int32]), any(fallback).(int32))
+		config.regInt32[any(key).(Variable[int32])] = Int32(any(key).(Variable[int32]), any(fallback).(int32))
 	case Variable[int64]:
-		config.RegInt64[any(key).(Variable[int64])] = Int64(any(key).(Variable[int64]), any(fallback).(int64))
+		config.regInt64[any(key).(Variable[int64])] = Int64(any(key).(Variable[int64]), any(fallback).(int64))
 	case Variable[uint]:
-		config.RegUint[any(key).(Variable[uint])] = Uint(any(key).(Variable[uint]), any(fallback).(uint))
+		config.regUint[any(key).(Variable[uint])] = Uint(any(key).(Variable[uint]), any(fallback).(uint))
 	case Variable[uint8]:
-		config.RegUint8[any(key).(Variable[uint8])] = Uint8(any(key).(Variable[uint8]), any(fallback).(uint8))
+		config.regUint8[any(key).(Variable[uint8])] = Uint8(any(key).(Variable[uint8]), any(fallback).(uint8))
 	case Variable[uint16]:
-		config.RegUint16[any(key).(Variable[uint16])] = Uint16(any(key).(Variable[uint16]), any(fallback).(uint16))
+		config.regUint16[any(key).(Variable[uint16])] = Uint16(any(key).(Variable[uint16]), any(fallback).(uint16))
 	case Variable[uint32]:
-		config.RegUint32[any(key).(Variable[uint32])] = Uint32(any(key).(Variable[uint32]), any(fallback).(uint32))
+		config.regUint32[any(key).(Variable[uint32])] = Uint32(any(key).(Variable[uint32]), any(fallback).(uint32))
 	case Variable[uint64]:
-		config.RegUint64[any(key).(Variable[uint64])] = Uint64(any(key).(Variable[uint64]), any(fallback).(uint64))
+		config.regUint64[any(key).(Variable[uint64])] = Uint64(any(key).(Variable[uint64]), any(fallback).(uint64))
 	case Variable[uintptr]:
-		config.RegUintptr[any(key).(Variable[uintptr])] = Uintptr(any(key).(Variable[uintptr]), any(fallback).(uintptr))
+		config.regUintptr[any(key).(Variable[uintptr])] = Uintptr(any(key).(Variable[uintptr]), any(fallback).(uintptr))
 	case Variable[[]byte]:
-		config.RegBytes[any(key).(Variable[[]byte])] = Bytes(any(key).(Variable[[]byte]), any(fallback).([]byte))
+		config.regBytes[any(key).(Variable[[]byte])] = Bytes(any(key).(Variable[[]byte]), any(fallback).([]byte))
 	case Variable[[]rune]:
-		config.RegRunes[any(key).(Variable[[]rune])] = Runes(any(key).(Variable[[]rune]), any(fallback).([]rune))
+		config.regRunes[any(key).(Variable[[]rune])] = Runes(any(key).(Variable[[]rune]), any(fallback).([]rune))
 	case Variable[float32]:
-		config.RegFloat32[any(key).(Variable[float32])] = Float32(any(key).(Variable[float32]), any(fallback).(float32))
+		config.regFloat32[any(key).(Variable[float32])] = Float32(any(key).(Variable[float32]), any(fallback).(float32))
 	case Variable[float64]:
-		config.RegFloat64[any(key).(Variable[float64])] = Float64(any(key).(Variable[float64]), any(fallback).(float64))
+		config.regFloat64[any(key).(Variable[float64])] = Float64(any(key).(Variable[float64]), any(fallback).(float64))
 	case Variable[bool]:
-		config.RegBool[any(key).(Variable[bool])] = Bool(any(key).(Variable[bool]), any(fallback).(bool))
+		config.regBool[any(key).(Variable[bool])] = Bool(any(key).(Variable[bool]), any(fallback).(bool))
 	}
 }
 
 // ConfigImpl is a concrete implementation of the Config interface, holding maps for each type of configuration
 // variable. It provides methods to retrieve values for each type and checks if all required keys are registered.
 type ConfigImpl struct {
-	RegString  map[Variable[string]]string
-	RegInt     map[Variable[int]]int
-	RegInt8    map[Variable[int8]]int8
-	RegInt16   map[Variable[int16]]int16
-	RegInt32   map[Variable[int32]]int32
-	RegInt64   map[Variable[int64]]int64
-	RegUint    map[Variable[uint]]uint
-	RegUint8   map[Variable[uint8]]uint8
-	RegUint16  map[Variable[uint16]]uint16
-	RegUint32  map[Variable[uint32]]uint32
-	RegUint64  map[Variable[uint64]]uint64
-	RegUintptr map[Variable[uintptr]]uintptr
-	RegBytes   map[Variable[[]byte]][]byte
-	RegRunes   map[Variable[[]rune]][]rune
-	RegFloat32 map[Variable[float32]]float32
-	RegFloat64 map[Variable[float64]]float64
-	RegBool    map[Variable[bool]]bool
+	rwLock     sync.RWMutex
+	regString  map[Variable[string]]string
+	regInt     map[Variable[int]]int
+	regInt8    map[Variable[int8]]int8
+	regInt16   map[Variable[int16]]int16
+	regInt32   map[Variable[int32]]int32
+	regInt64   map[Variable[int64]]int64
+	regUint    map[Variable[uint]]uint
+	regUint8   map[Variable[uint8]]uint8
+	regUint16  map[Variable[uint16]]uint16
+	regUint32  map[Variable[uint32]]uint32
+	regUint64  map[Variable[uint64]]uint64
+	regUintptr map[Variable[uintptr]]uintptr
+	regBytes   map[Variable[[]byte]][]byte
+	regRunes   map[Variable[[]rune]][]rune
+	regFloat32 map[Variable[float32]]float32
+	regFloat64 map[Variable[float64]]float64
+	regBool    map[Variable[bool]]bool
 }
 
 func NewConfigImpl() *ConfigImpl {
 	return &ConfigImpl{
-		RegString:  make(map[Variable[string]]string),
-		RegInt:     make(map[Variable[int]]int),
-		RegInt8:    make(map[Variable[int8]]int8),
-		RegInt16:   make(map[Variable[int16]]int16),
-		RegInt32:   make(map[Variable[int32]]int32),
-		RegInt64:   make(map[Variable[int64]]int64),
-		RegUint:    make(map[Variable[uint]]uint),
-		RegUint8:   make(map[Variable[uint8]]uint8),
-		RegUint16:  make(map[Variable[uint16]]uint16),
-		RegUint32:  make(map[Variable[uint32]]uint32),
-		RegUint64:  make(map[Variable[uint64]]uint64),
-		RegUintptr: make(map[Variable[uintptr]]uintptr),
-		RegBytes:   make(map[Variable[[]byte]][]byte),
-		RegRunes:   make(map[Variable[[]rune]][]rune),
-		RegFloat32: make(map[Variable[float32]]float32),
-		RegFloat64: make(map[Variable[float64]]float64),
-		RegBool:    make(map[Variable[bool]]bool),
+		regString:  make(map[Variable[string]]string),
+		regInt:     make(map[Variable[int]]int),
+		regInt8:    make(map[Variable[int8]]int8),
+		regInt16:   make(map[Variable[int16]]int16),
+		regInt32:   make(map[Variable[int32]]int32),
+		regInt64:   make(map[Variable[int64]]int64),
+		regUint:    make(map[Variable[uint]]uint),
+		regUint8:   make(map[Variable[uint8]]uint8),
+		regUint16:  make(map[Variable[uint16]]uint16),
+		regUint32:  make(map[Variable[uint32]]uint32),
+		regUint64:  make(map[Variable[uint64]]uint64),
+		regUintptr: make(map[Variable[uintptr]]uintptr),
+		regBytes:   make(map[Variable[[]byte]][]byte),
+		regRunes:   make(map[Variable[[]rune]][]rune),
+		regFloat32: make(map[Variable[float32]]float32),
+		regFloat64: make(map[Variable[float64]]float64),
+		regBool:    make(map[Variable[bool]]bool),
 	}
 }
 
 var _ Config = (*ConfigImpl)(nil)
 
-func (c ConfigImpl) String(key Variable[string]) string {
-	if value, exists := c.RegString[key]; exists {
+func (c *ConfigImpl) String(key Variable[string]) string {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regString[key]; exists {
 		return value
 	}
 	return ""
 }
 
-func (c ConfigImpl) Int(key Variable[int]) int {
-	if value, exists := c.RegInt[key]; exists {
+func (c *ConfigImpl) Int(key Variable[int]) int {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regInt[key]; exists {
 		return value
 	}
 	return 0
 }
 
-func (c ConfigImpl) Int8(key Variable[int8]) int8 {
-	if value, exists := c.RegInt8[key]; exists {
+func (c *ConfigImpl) Int8(key Variable[int8]) int8 {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regInt8[key]; exists {
 		return value
 	}
 	return 0
 }
 
-func (c ConfigImpl) Int16(key Variable[int16]) int16 {
-	if value, exists := c.RegInt16[key]; exists {
+func (c *ConfigImpl) Int16(key Variable[int16]) int16 {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regInt16[key]; exists {
 		return value
 	}
 	return 0
 }
 
-func (c ConfigImpl) Int32(key Variable[int32]) int32 {
-	if value, exists := c.RegInt32[key]; exists {
+func (c *ConfigImpl) Int32(key Variable[int32]) int32 {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regInt32[key]; exists {
 		return value
 	}
 	return 0
 }
 
-func (c ConfigImpl) Int64(key Variable[int64]) int64 {
-	if value, exists := c.RegInt64[key]; exists {
+func (c *ConfigImpl) Int64(key Variable[int64]) int64 {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regInt64[key]; exists {
 		return value
 	}
 	return 0
 }
 
-func (c ConfigImpl) Uint(key Variable[uint]) uint {
-	if value, exists := c.RegUint[key]; exists {
+func (c *ConfigImpl) Uint(key Variable[uint]) uint {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regUint[key]; exists {
 		return value
 	}
 	return 0
 }
 
-func (c ConfigImpl) Uint8(key Variable[uint8]) uint8 {
-	if value, exists := c.RegUint8[key]; exists {
+func (c *ConfigImpl) Uint8(key Variable[uint8]) uint8 {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regUint8[key]; exists {
 		return value
 	}
 	return 0
 }
 
-func (c ConfigImpl) Uint16(key Variable[uint16]) uint16 {
-	if value, exists := c.RegUint16[key]; exists {
+func (c *ConfigImpl) Uint16(key Variable[uint16]) uint16 {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regUint16[key]; exists {
 		return value
 	}
 	return 0
 }
 
-func (c ConfigImpl) Uint32(key Variable[uint32]) uint32 {
-	if value, exists := c.RegUint32[key]; exists {
+func (c *ConfigImpl) Uint32(key Variable[uint32]) uint32 {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regUint32[key]; exists {
 		return value
 	}
 	return 0
 }
 
-func (c ConfigImpl) Uint64(key Variable[uint64]) uint64 {
-	if value, exists := c.RegUint64[key]; exists {
+func (c *ConfigImpl) Uint64(key Variable[uint64]) uint64 {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regUint64[key]; exists {
 		return value
 	}
 	return 0
 }
 
-func (c ConfigImpl) Uintptr(key Variable[uintptr]) uintptr {
-	if value, exists := c.RegUintptr[key]; exists {
+func (c *ConfigImpl) Uintptr(key Variable[uintptr]) uintptr {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regUintptr[key]; exists {
 		return value
 	}
 	return 0
 }
 
-func (c ConfigImpl) Bytes(key Variable[[]byte]) []byte {
-	if value, exists := c.RegBytes[key]; exists {
+func (c *ConfigImpl) Bytes(key Variable[[]byte]) []byte {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regBytes[key]; exists {
 		return value
 	}
 	return nil
 }
 
-func (c ConfigImpl) Runes(key Variable[[]rune]) []rune {
-	if value, exists := c.RegRunes[key]; exists {
+func (c *ConfigImpl) Runes(key Variable[[]rune]) []rune {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regRunes[key]; exists {
 		return value
 	}
 	return nil
 }
 
-func (c ConfigImpl) Float32(key Variable[float32]) float32 {
-	if value, exists := c.RegFloat32[key]; exists {
+func (c *ConfigImpl) Float32(key Variable[float32]) float32 {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regFloat32[key]; exists {
 		return value
 	}
 	return 0.0
 }
 
-func (c ConfigImpl) Float64(key Variable[float64]) float64 {
-	if value, exists := c.RegFloat64[key]; exists {
+func (c *ConfigImpl) Float64(key Variable[float64]) float64 {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regFloat64[key]; exists {
 		return value
 	}
 	return 0.0
 }
 
-func (c ConfigImpl) Bool(key Variable[bool]) bool {
-	if value, exists := c.RegBool[key]; exists {
+func (c *ConfigImpl) Bool(key Variable[bool]) bool {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	if value, exists := c.regBool[key]; exists {
 		return value
 	}
 	return false
@@ -276,61 +371,63 @@ var _ error = (*missingVariableError)(nil)
 
 // checkKey checks if the provided key exists in the configuration. It uses type assertion to determine the type of the
 // key and checks the corresponding map in the configuration struct.
-func (c ConfigImpl) checkKey(key any) (string, bool) {
+func (c *ConfigImpl) checkKey(key any) (string, bool) {
 	var exists bool
 	var keyName string
-	switch any(key).(type) {
+	c.rwLock.RLock()
+	defer c.rwLock.RUnlock()
+	switch k := key.(type) {
 	case Variable[string]:
-		_, exists = c.RegString[key.(Variable[string])]
-		keyName = string(key.(Variable[string]))
+		_, exists = c.regString[k]
+		keyName = string(k)
 	case Variable[int]:
-		_, exists = c.RegInt[key.(Variable[int])]
-		keyName = string(key.(Variable[int]))
+		_, exists = c.regInt[k]
+		keyName = string(k)
 	case Variable[int8]:
-		_, exists = c.RegInt8[key.(Variable[int8])]
-		keyName = string(key.(Variable[int8]))
+		_, exists = c.regInt8[k]
+		keyName = string(k)
 	case Variable[int16]:
-		_, exists = c.RegInt16[key.(Variable[int16])]
-		keyName = string(key.(Variable[int16]))
+		_, exists = c.regInt16[k]
+		keyName = string(k)
 	case Variable[int32]:
-		_, exists = c.RegInt32[key.(Variable[int32])]
-		keyName = string(key.(Variable[int32]))
+		_, exists = c.regInt32[k]
+		keyName = string(k)
 	case Variable[int64]:
-		_, exists = c.RegInt64[key.(Variable[int64])]
-		keyName = string(key.(Variable[int64]))
+		_, exists = c.regInt64[k]
+		keyName = string(k)
 	case Variable[uint]:
-		_, exists = c.RegUint[key.(Variable[uint])]
-		keyName = string(key.(Variable[uint]))
+		_, exists = c.regUint[k]
+		keyName = string(k)
 	case Variable[uint8]:
-		_, exists = c.RegUint8[key.(Variable[uint8])]
-		keyName = string(key.(Variable[uint8]))
+		_, exists = c.regUint8[k]
+		keyName = string(k)
 	case Variable[uint16]:
-		_, exists = c.RegUint16[key.(Variable[uint16])]
-		keyName = string(key.(Variable[uint16]))
+		_, exists = c.regUint16[k]
+		keyName = string(k)
 	case Variable[uint32]:
-		_, exists = c.RegUint32[key.(Variable[uint32])]
-		keyName = string(key.(Variable[uint32]))
+		_, exists = c.regUint32[k]
+		keyName = string(k)
 	case Variable[uint64]:
-		_, exists = c.RegUint64[key.(Variable[uint64])]
-		keyName = string(key.(Variable[uint64]))
+		_, exists = c.regUint64[k]
+		keyName = string(k)
 	case Variable[uintptr]:
-		_, exists = c.RegUintptr[key.(Variable[uintptr])]
-		keyName = string(key.(Variable[uintptr]))
+		_, exists = c.regUintptr[k]
+		keyName = string(k)
 	case Variable[[]byte]:
-		_, exists = c.RegBytes[key.(Variable[[]byte])]
-		keyName = string(key.(Variable[[]byte]))
+		_, exists = c.regBytes[k]
+		keyName = string(k)
 	case Variable[[]rune]:
-		_, exists = c.RegRunes[key.(Variable[[]rune])]
-		keyName = string(key.(Variable[[]rune]))
+		_, exists = c.regRunes[k]
+		keyName = string(k)
 	case Variable[float32]:
-		_, exists = c.RegFloat32[key.(Variable[float32])]
-		keyName = string(key.(Variable[float32]))
+		_, exists = c.regFloat32[k]
+		keyName = string(k)
 	case Variable[float64]:
-		_, exists = c.RegFloat64[key.(Variable[float64])]
-		keyName = string(key.(Variable[float64]))
+		_, exists = c.regFloat64[k]
+		keyName = string(k)
 	case Variable[bool]:
-		_, exists = c.RegBool[key.(Variable[bool])]
-		keyName = string(key.(Variable[bool]))
+		_, exists = c.regBool[k]
+		keyName = string(k)
 	}
 
 	return keyName, exists
@@ -338,7 +435,7 @@ func (c ConfigImpl) checkKey(key any) (string, bool) {
 
 // ConfigurationKeysRegistered checks if all provided keys are registered in the configuration. To ensure that the
 // client of the package have taken all required keys into consideration when building the configuration object.
-func (c ConfigImpl) ConfigurationKeysRegistered(keys ...any) error {
+func (c *ConfigImpl) ConfigurationKeysRegistered(keys ...any) error {
 	var missingKeys []string
 	for _, key := range keys {
 		if keyName, ok := c.checkKey(key); !ok {
@@ -364,28 +461,34 @@ func Fallback[T comparable](value T, fallback T) T {
 }
 
 // Merge combines multiple Config instances into a single Config instance.
+// To ensure a consistent view of the source configurations, it locks all
+// configuration types for reading during the merge operation.
 func Merge(cfgs ...Config) Config {
 	merged := NewConfigImpl()
+	merged.rwLock.Lock()
+	defer merged.rwLock.Unlock()
 
 	for _, cfg := range cfgs {
-		if strMap, ok := cfg.(*ConfigImpl); ok {
-			maps.Copy(merged.RegString, strMap.RegString)
-			maps.Copy(merged.RegInt, strMap.RegInt)
-			maps.Copy(merged.RegInt8, strMap.RegInt8)
-			maps.Copy(merged.RegInt16, strMap.RegInt16)
-			maps.Copy(merged.RegInt32, strMap.RegInt32)
-			maps.Copy(merged.RegInt64, strMap.RegInt64)
-			maps.Copy(merged.RegUint, strMap.RegUint)
-			maps.Copy(merged.RegUint8, strMap.RegUint8)
-			maps.Copy(merged.RegUint16, strMap.RegUint16)
-			maps.Copy(merged.RegUint32, strMap.RegUint32)
-			maps.Copy(merged.RegUint64, strMap.RegUint64)
-			maps.Copy(merged.RegUintptr, strMap.RegUintptr)
-			maps.Copy(merged.RegBytes, strMap.RegBytes)
-			maps.Copy(merged.RegRunes, strMap.RegRunes)
-			maps.Copy(merged.RegFloat32, strMap.RegFloat32)
-			maps.Copy(merged.RegFloat64, strMap.RegFloat64)
-			maps.Copy(merged.RegBool, strMap.RegBool)
+		if c, ok := cfg.(*ConfigImpl); ok {
+			c.rwLock.RLock()
+			defer c.rwLock.RUnlock()
+			maps.Copy(merged.regString, c.regString)
+			maps.Copy(merged.regInt, c.regInt)
+			maps.Copy(merged.regInt8, c.regInt8)
+			maps.Copy(merged.regInt16, c.regInt16)
+			maps.Copy(merged.regInt32, c.regInt32)
+			maps.Copy(merged.regInt64, c.regInt64)
+			maps.Copy(merged.regUint, c.regUint)
+			maps.Copy(merged.regUint8, c.regUint8)
+			maps.Copy(merged.regUint16, c.regUint16)
+			maps.Copy(merged.regUint32, c.regUint32)
+			maps.Copy(merged.regUint64, c.regUint64)
+			maps.Copy(merged.regUintptr, c.regUintptr)
+			maps.Copy(merged.regBytes, c.regBytes)
+			maps.Copy(merged.regRunes, c.regRunes)
+			maps.Copy(merged.regFloat32, c.regFloat32)
+			maps.Copy(merged.regFloat64, c.regFloat64)
+			maps.Copy(merged.regBool, c.regBool)
 		} else {
 			panic("unsupported config type")
 		}

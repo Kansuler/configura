@@ -64,7 +64,7 @@ func (s *ConfigSuite) TestString() {
 		assert.Equal(s.T(), "", s.config.String(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegString[key] = "hello"
+		Write(s.config, map[Variable[string]]string{key: "hello"})
 		assert.Equal(s.T(), "hello", s.config.String(key))
 	})
 }
@@ -75,7 +75,7 @@ func (s *ConfigSuite) TestInt() {
 		assert.Equal(s.T(), 0, s.config.Int(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegInt[key] = 123
+		Write(s.config, map[Variable[int]]int{key: 123})
 		assert.Equal(s.T(), 123, s.config.Int(key))
 	})
 }
@@ -86,7 +86,7 @@ func (s *ConfigSuite) TestInt8() {
 		assert.Equal(s.T(), int8(0), s.config.Int8(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegInt8[key] = int8(12)
+		Write(s.config, map[Variable[int8]]int8{key: 12})
 		assert.Equal(s.T(), int8(12), s.config.Int8(key))
 	})
 }
@@ -97,7 +97,7 @@ func (s *ConfigSuite) TestInt16() {
 		assert.Equal(s.T(), int16(0), s.config.Int16(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegInt16[key] = int16(1234)
+		Write(s.config, map[Variable[int16]]int16{key: 1234})
 		assert.Equal(s.T(), int16(1234), s.config.Int16(key))
 	})
 }
@@ -108,7 +108,7 @@ func (s *ConfigSuite) TestInt32() {
 		assert.Equal(s.T(), int32(0), s.config.Int32(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegInt32[key] = int32(123456)
+		Write(s.config, map[Variable[int32]]int32{key: 123456})
 		assert.Equal(s.T(), int32(123456), s.config.Int32(key))
 	})
 }
@@ -119,7 +119,7 @@ func (s *ConfigSuite) TestInt64() {
 		assert.Equal(s.T(), int64(0), s.config.Int64(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegInt64[key] = int64(1234567890)
+		Write(s.config, map[Variable[int64]]int64{key: 1234567890})
 		assert.Equal(s.T(), int64(1234567890), s.config.Int64(key))
 	})
 }
@@ -130,7 +130,7 @@ func (s *ConfigSuite) TestUint() {
 		assert.Equal(s.T(), uint(0), s.config.Uint(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegUint[key] = uint(123)
+		Write(s.config, map[Variable[uint]]uint{key: 123})
 		assert.Equal(s.T(), uint(123), s.config.Uint(key))
 	})
 }
@@ -141,7 +141,7 @@ func (s *ConfigSuite) TestUint8() {
 		assert.Equal(s.T(), uint8(0), s.config.Uint8(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegUint8[key] = uint8(12)
+		Write(s.config, map[Variable[uint8]]uint8{key: 12})
 		assert.Equal(s.T(), uint8(12), s.config.Uint8(key))
 	})
 }
@@ -152,7 +152,7 @@ func (s *ConfigSuite) TestUint16() {
 		assert.Equal(s.T(), uint16(0), s.config.Uint16(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegUint16[key] = uint16(1234)
+		Write(s.config, map[Variable[uint16]]uint16{key: 1234})
 		assert.Equal(s.T(), uint16(1234), s.config.Uint16(key))
 	})
 }
@@ -163,7 +163,7 @@ func (s *ConfigSuite) TestUint32() {
 		assert.Equal(s.T(), uint32(0), s.config.Uint32(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegUint32[key] = uint32(123456)
+		Write(s.config, map[Variable[uint32]]uint32{key: 123456})
 		assert.Equal(s.T(), uint32(123456), s.config.Uint32(key))
 	})
 }
@@ -174,7 +174,7 @@ func (s *ConfigSuite) TestUint64() {
 		assert.Equal(s.T(), uint64(0), s.config.Uint64(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegUint64[key] = uint64(1234567890)
+		Write(s.config, map[Variable[uint64]]uint64{key: 1234567890})
 		assert.Equal(s.T(), uint64(1234567890), s.config.Uint64(key))
 	})
 }
@@ -185,7 +185,7 @@ func (s *ConfigSuite) TestUintptr() {
 		assert.Equal(s.T(), uintptr(0), s.config.Uintptr(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegUintptr[key] = uintptr(0xdeadbeef)
+		Write(s.config, map[Variable[uintptr]]uintptr{key: 0xdeadbeef})
 		assert.Equal(s.T(), uintptr(0xdeadbeef), s.config.Uintptr(key))
 	})
 }
@@ -197,7 +197,7 @@ func (s *ConfigSuite) TestBytes() {
 	})
 	s.Run("KeyExists", func() {
 		val := []byte("hello")
-		s.config.RegBytes[key] = val
+		Write(s.config, map[Variable[[]byte]][]byte{key: val})
 		assert.Equal(s.T(), val, s.config.Bytes(key))
 	})
 }
@@ -209,7 +209,7 @@ func (s *ConfigSuite) TestRunes() {
 	})
 	s.Run("KeyExists", func() {
 		val := []rune("hello😊")
-		s.config.RegRunes[key] = val
+		Write(s.config, map[Variable[[]rune]][]rune{key: val})
 		assert.Equal(s.T(), val, s.config.Runes(key))
 	})
 }
@@ -220,7 +220,7 @@ func (s *ConfigSuite) TestFloat32() {
 		assert.Equal(s.T(), float32(0.0), s.config.Float32(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegFloat32[key] = float32(3.14)
+		Write(s.config, map[Variable[float32]]float32{key: 3.14})
 		assert.Equal(s.T(), float32(3.14), s.config.Float32(key))
 	})
 }
@@ -231,7 +231,7 @@ func (s *ConfigSuite) TestFloat64() {
 		assert.Equal(s.T(), float64(0.0), s.config.Float64(key))
 	})
 	s.Run("KeyExists", func() {
-		s.config.RegFloat64[key] = float64(3.14159)
+		Write(s.config, map[Variable[float64]]float64{key: 3.14159})
 		assert.Equal(s.T(), float64(3.14159), s.config.Float64(key))
 	})
 }
@@ -242,12 +242,12 @@ func (s *ConfigSuite) TestBool() {
 		assert.False(s.T(), s.config.Bool(key))
 	})
 	s.Run("KeyExistsTrue", func() {
-		s.config.RegBool[key] = true
+		Write(s.config, map[Variable[bool]]bool{key: true})
 		assert.True(s.T(), s.config.Bool(key))
 	})
 	s.Run("KeyExistsFalse", func() {
 		falseKey := Variable[bool]("TEST_BOOL_FALSE_VAL")
-		s.config.RegBool[falseKey] = false
+		Write(s.config, map[Variable[bool]]bool{falseKey: false})
 		assert.False(s.T(), s.config.Bool(falseKey))
 	})
 }
@@ -279,17 +279,17 @@ func (s *LoadEnvironmentSuite) TestLoadString() {
 	s.Run("EnvVarSet", func() {
 		s.setEnvVar(string(key), envVal)
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envVal, cfg.RegString[key])
+		assert.Equal(s.T(), envVal, cfg.String(key))
 	})
 	s.Run("EnvVarNotSet", func() {
-		s.unsetEnvVar(string(key))                        // Ensure it's unset for this specific sub-test
-		LoadEnvironment(cfg, key, fallback)               // Use fresh config or reset
-		assert.Equal(s.T(), fallback, cfg.RegString[key]) // This line would fail if cfg is not reset or key re-added
+		s.unsetEnvVar(string(key))                     // Ensure it's unset for this specific sub-test
+		LoadEnvironment(cfg, key, fallback)            // Use fresh config or reset
+		assert.Equal(s.T(), fallback, cfg.String(key)) // This line would fail if cfg is not reset or key re-added
 
 		// Corrected approach for EnvVarNotSet
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegString[key])
+		assert.Equal(s.T(), fallback, freshCfg.String(key))
 	})
 }
 
@@ -303,19 +303,19 @@ func (s *LoadEnvironmentSuite) TestLoadInt() {
 	s.Run("EnvVarSetValid", func() {
 		s.setEnvVar(string(key), envValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envValInt, cfg.RegInt[key])
+		assert.Equal(s.T(), envValInt, cfg.Int(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int(key))
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-an-int")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int(key))
 	})
 }
 
@@ -329,25 +329,25 @@ func (s *LoadEnvironmentSuite) TestLoadInt8() {
 	s.Run("EnvVarSetValid", func() {
 		s.setEnvVar(string(key), envValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envValInt8, cfg.RegInt8[key])
+		assert.Equal(s.T(), envValInt8, cfg.Int8(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt8[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int8(key))
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-an-int8")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt8[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int8(key))
 	})
 	s.Run("EnvVarSetOutOfBounds", func() {
 		s.setEnvVar(string(key), "129") // Out of bounds for int8
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt8[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int8(key))
 	})
 }
 
@@ -361,25 +361,25 @@ func (s *LoadEnvironmentSuite) TestLoadInt16() {
 	s.Run("EnvVarSetValid", func() {
 		s.setEnvVar(string(key), envValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envValInt16, cfg.RegInt16[key])
+		assert.Equal(s.T(), envValInt16, cfg.Int16(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt16[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int16(key))
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-an-int16")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt16[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int16(key))
 	})
 	s.Run("EnvVarSetOutOfBounds", func() {
 		s.setEnvVar(string(key), "32768") // Out of bounds for int16
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt16[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int16(key))
 	})
 }
 
@@ -393,25 +393,25 @@ func (s *LoadEnvironmentSuite) TestLoadInt32() {
 	s.Run("EnvVarSetValid", func() {
 		s.setEnvVar(string(key), envValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envValInt32, cfg.RegInt32[key])
+		assert.Equal(s.T(), envValInt32, cfg.Int32(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt32[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int32(key))
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-an-int32")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt32[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int32(key))
 	})
 	s.Run("EnvVarSetOutOfBounds", func() {
 		s.setEnvVar(string(key), "2147483648") // Out of bounds for int32
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt32[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int32(key))
 	})
 }
 
@@ -425,25 +425,25 @@ func (s *LoadEnvironmentSuite) TestLoadInt64() {
 	s.Run("EnvVarSetValid", func() {
 		s.setEnvVar(string(key), envValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envValInt64, cfg.RegInt64[key])
+		assert.Equal(s.T(), envValInt64, cfg.Int64(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt64[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int64(key))
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-an-int64")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt64[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int64(key))
 	})
 	s.Run("EnvVarSetOutOfBounds", func() {
 		s.setEnvVar(string(key), "9223372036854775808") // Out of bounds for int64
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegInt64[key])
+		assert.Equal(s.T(), fallback, freshCfg.Int64(key))
 	})
 }
 
@@ -457,25 +457,25 @@ func (s *LoadEnvironmentSuite) TestLoadUint() {
 	s.Run("EnvVarSetValid", func() {
 		s.setEnvVar(string(key), envValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envValUint, cfg.RegUint[key])
+		assert.Equal(s.T(), envValUint, cfg.Uint(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint(key))
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-a-uint")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint(key))
 	})
 	s.Run("EnvVarSetNegative", func() {
 		s.setEnvVar(string(key), "-1") // Negative, invalid for uint
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint(key))
 	})
 }
 
@@ -489,25 +489,25 @@ func (s *LoadEnvironmentSuite) TestLoadUint8() {
 	s.Run("EnvVarSetValid", func() {
 		s.setEnvVar(string(key), envValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envValUint8, cfg.RegUint8[key])
+		assert.Equal(s.T(), envValUint8, cfg.Uint8(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint8[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint8(key))
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-a-uint8")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint8[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint8(key))
 	})
 	s.Run("EnvVarSetOutOfBounds", func() {
 		s.setEnvVar(string(key), "256") // Out of bounds for uint8
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint8[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint8(key))
 	})
 }
 
@@ -521,25 +521,25 @@ func (s *LoadEnvironmentSuite) TestLoadUint16() {
 	s.Run("EnvVarSetValid", func() {
 		s.setEnvVar(string(key), envValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envValUint16, cfg.RegUint16[key])
+		assert.Equal(s.T(), envValUint16, cfg.Uint16(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint16[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint16(key))
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-a-uint16")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint16[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint16(key))
 	})
 	s.Run("EnvVarSetOutOfBounds", func() {
 		s.setEnvVar(string(key), "65536") // Out of bounds for uint16
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint16[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint16(key))
 	})
 }
 
@@ -553,25 +553,25 @@ func (s *LoadEnvironmentSuite) TestLoadUint32() {
 	s.Run("EnvVarSetValid", func() {
 		s.setEnvVar(string(key), envValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envValUint32, cfg.RegUint32[key])
+		assert.Equal(s.T(), envValUint32, cfg.Uint32(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint32[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint32(key))
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-a-uint32")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint32[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint32(key))
 	})
 	s.Run("EnvVarSetOutOfBounds", func() {
 		s.setEnvVar(string(key), "4294967296") // Out of bounds for uint32
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint32[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint32(key))
 	})
 }
 
@@ -585,25 +585,25 @@ func (s *LoadEnvironmentSuite) TestLoadUint64() {
 	s.Run("EnvVarSetValid", func() {
 		s.setEnvVar(string(key), envValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envValUint64, cfg.RegUint64[key])
+		assert.Equal(s.T(), envValUint64, cfg.Uint64(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint64[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint64(key))
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-a-uint64")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint64[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint64(key))
 	})
 	s.Run("EnvVarSetOutOfBounds", func() {
 		s.setEnvVar(string(key), "18446744073709551616") // Out of bounds for uint64
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUint64[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uint64(key))
 	})
 }
 
@@ -623,19 +623,19 @@ func (s *LoadEnvironmentSuite) TestLoadUintptr() {
 		decimalEnvValStr := strconv.FormatUint(uint64(envValUintptr), 10)
 		s.setEnvVar(string(key), decimalEnvValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envValUintptr, cfg.RegUintptr[key])
+		assert.Equal(s.T(), envValUintptr, cfg.Uintptr(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUintptr[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uintptr(key))
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-a-uintptr")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegUintptr[key])
+		assert.Equal(s.T(), fallback, freshCfg.Uintptr(key))
 	})
 }
 
@@ -649,19 +649,19 @@ func (s *LoadEnvironmentSuite) TestLoadFloat32() {
 	s.Run("EnvVarSetValid", func() {
 		s.setEnvVar(string(key), envValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.InDelta(s.T(), envValFloat32, cfg.RegFloat32[key], 0.0001)
+		assert.InDelta(s.T(), envValFloat32, cfg.Float32(key), 0.0001)
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.InDelta(s.T(), fallback, freshCfg.RegFloat32[key], 0.0001)
+		assert.InDelta(s.T(), fallback, freshCfg.Float32(key), 0.0001)
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-a-float")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.InDelta(s.T(), fallback, freshCfg.RegFloat32[key], 0.0001)
+		assert.InDelta(s.T(), fallback, freshCfg.Float32(key), 0.0001)
 	})
 }
 
@@ -675,19 +675,19 @@ func (s *LoadEnvironmentSuite) TestLoadFloat64() {
 	s.Run("EnvVarSetValid", func() {
 		s.setEnvVar(string(key), envValStr)
 		LoadEnvironment(cfg, key, fallback)
-		assert.InDelta(s.T(), envValFloat64, cfg.RegFloat64[key], 0.0000001)
+		assert.InDelta(s.T(), envValFloat64, cfg.Float64(key), 0.0000001)
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.InDelta(s.T(), fallback, freshCfg.RegFloat64[key], 0.0000001)
+		assert.InDelta(s.T(), fallback, freshCfg.Float64(key), 0.0000001)
 	})
 	s.Run("EnvVarSetInvalid", func() {
 		s.setEnvVar(string(key), "not-a-float64")
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.InDelta(s.T(), fallback, freshCfg.RegFloat64[key], 0.0000001)
+		assert.InDelta(s.T(), fallback, freshCfg.Float64(key), 0.0000001)
 	})
 }
 
@@ -721,7 +721,7 @@ func (s *LoadEnvironmentSuite) TestLoadBool() {
 				s.unsetEnvVar(string(key))
 			}
 			LoadEnvironment(currentCfg, key, tc.fallback)
-			assert.Equal(s.T(), tc.expectedReg, currentCfg.RegBool[key], "Mismatch in registered bool value")
+			assert.Equal(s.T(), tc.expectedReg, currentCfg.Bool(key), "Mismatch in registered bool value")
 		})
 	}
 }
@@ -735,13 +735,13 @@ func (s *LoadEnvironmentSuite) TestLoadBytes() {
 	s.Run("EnvVarSet", func() {
 		s.setEnvVar(string(key), string(envVal))
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envVal, cfg.RegBytes[key])
+		assert.Equal(s.T(), envVal, cfg.Bytes(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegBytes[key])
+		assert.Equal(s.T(), fallback, freshCfg.Bytes(key))
 	})
 }
 
@@ -755,13 +755,13 @@ func (s *LoadEnvironmentSuite) TestLoadRunes() {
 	s.Run("EnvVarSet", func() {
 		s.setEnvVar(string(key), string(envValStr)) // Store string in env
 		LoadEnvironment(cfg, key, fallback)
-		assert.Equal(s.T(), envVal, cfg.RegRunes[key])
+		assert.Equal(s.T(), envVal, cfg.Runes(key))
 	})
 	s.Run("EnvVarNotSet", func() {
 		s.unsetEnvVar(string(key))
 		freshCfg := NewConfigImpl()
 		LoadEnvironment(freshCfg, key, fallback)
-		assert.Equal(s.T(), fallback, freshCfg.RegRunes[key])
+		assert.Equal(s.T(), fallback, freshCfg.Runes(key))
 	})
 }
 
@@ -797,10 +797,10 @@ func (s *CheckKeySuite) TestCheckKey() {
 	missingIntKey := Variable[int]("MISSING_INT")
 	uintptrKey := Variable[uintptr]("MY_UINTPTR_UNINIT_MAP_SCENARIO")
 
-	cfg.RegString[strKey] = "value"
-	cfg.RegInt[intKey] = 123
-	cfg.RegBool[boolKey] = true
-	cfg.RegFloat32[float32Key] = 3.14
+	cfg.regString[strKey] = "value"
+	cfg.regInt[intKey] = 123
+	cfg.regBool[boolKey] = true
+	cfg.regFloat32[float32Key] = 3.14
 
 	s.Run("ExistingKeys", func() {
 		name, exists := cfg.checkKey(strKey)
@@ -857,8 +857,8 @@ func (s *ConfigurationKeysRegisteredSuite) TestConfigurationKeysRegistered() {
 	intKey1 := Variable[int]("INT_KEY_1")
 	floatKeyMissing := Variable[float32]("FLOAT_KEY_MISSING")
 
-	cfg.RegString[strKey1] = "val1"
-	cfg.RegInt[intKey1] = 100
+	cfg.regString[strKey1] = "val1"
+	cfg.regInt[intKey1] = 100
 
 	s.Run("AllCheckedKeysExist", func() {
 		err := cfg.ConfigurationKeysRegistered(strKey1, intKey1)
@@ -930,23 +930,23 @@ func (s *MergeSuite) TestMergeEmpty() {
 	cfgImpl, ok := mergedCfg.(*ConfigImpl)
 	s.Require().True(ok, "Merged config should be of type *ConfigImpl")
 
-	s.Empty(cfgImpl.RegString, "RegString should be empty")
-	s.Empty(cfgImpl.RegInt, "RegInt should be empty")
-	s.Empty(cfgImpl.RegInt8, "RegInt8 should be empty")
-	s.Empty(cfgImpl.RegInt16, "RegInt16 should be empty")
-	s.Empty(cfgImpl.RegInt32, "RegInt32 should be empty")
-	s.Empty(cfgImpl.RegInt64, "RegInt64 should be empty")
-	s.Empty(cfgImpl.RegUint, "RegUint should be empty")
-	s.Empty(cfgImpl.RegUint8, "RegUint8 should be empty")
-	s.Empty(cfgImpl.RegUint16, "RegUint16 should be empty")
-	s.Empty(cfgImpl.RegUint32, "RegUint32 should be empty")
-	s.Empty(cfgImpl.RegUint64, "RegUint64 should be empty")
-	s.Empty(cfgImpl.RegUintptr, "RegUintptr should be empty")
-	s.Empty(cfgImpl.RegBytes, "RegBytes should be empty")
-	s.Empty(cfgImpl.RegRunes, "RegRunes should be empty")
-	s.Empty(cfgImpl.RegFloat32, "RegFloat32 should be empty")
-	s.Empty(cfgImpl.RegFloat64, "RegFloat64 should be empty")
-	s.Empty(cfgImpl.RegBool, "RegBool should be empty")
+	s.Empty(cfgImpl.regString, "RegString should be empty")
+	s.Empty(cfgImpl.regInt, "RegInt should be empty")
+	s.Empty(cfgImpl.regInt8, "RegInt8 should be empty")
+	s.Empty(cfgImpl.regInt16, "RegInt16 should be empty")
+	s.Empty(cfgImpl.regInt32, "RegInt32 should be empty")
+	s.Empty(cfgImpl.regInt64, "RegInt64 should be empty")
+	s.Empty(cfgImpl.regUint, "RegUint should be empty")
+	s.Empty(cfgImpl.regUint8, "RegUint8 should be empty")
+	s.Empty(cfgImpl.regUint16, "RegUint16 should be empty")
+	s.Empty(cfgImpl.regUint32, "RegUint32 should be empty")
+	s.Empty(cfgImpl.regUint64, "RegUint64 should be empty")
+	s.Empty(cfgImpl.regUintptr, "RegUintptr should be empty")
+	s.Empty(cfgImpl.regBytes, "RegBytes should be empty")
+	s.Empty(cfgImpl.regRunes, "RegRunes should be empty")
+	s.Empty(cfgImpl.regFloat32, "RegFloat32 should be empty")
+	s.Empty(cfgImpl.regFloat64, "RegFloat64 should be empty")
+	s.Empty(cfgImpl.regBool, "RegBool should be empty")
 }
 
 // TestMergeSingle tests merging a single configuration.
@@ -967,10 +967,10 @@ func (s *MergeSuite) TestMergeSingle() {
 	// Ensure it has copied values correctly
 	cfgImpl, ok := mergedCfg.(*ConfigImpl)
 	s.Require().True(ok, "Merged config should be of type *ConfigImpl")
-	s.Equal("value1", cfgImpl.RegString[keyStr])
-	s.Equal(123, cfgImpl.RegInt[keyInt])
-	s.Len(cfgImpl.RegString, 1)
-	s.Len(cfgImpl.RegInt, 1)
+	s.Equal("value1", cfgImpl.regString[keyStr])
+	s.Equal(123, cfgImpl.regInt[keyInt])
+	s.Len(cfgImpl.regString, 1)
+	s.Len(cfgImpl.regInt, 1)
 }
 
 // TestMergeTwoDistinct tests merging two configurations with distinct keys.
@@ -991,10 +991,10 @@ func (s *MergeSuite) TestMergeTwoDistinct() {
 
 	cfgImpl, ok := mergedCfg.(*ConfigImpl)
 	s.Require().True(ok, "Merged config should be of type *ConfigImpl")
-	s.Len(cfgImpl.RegString, 1, "RegString should have 1 entry")
-	s.Equal("value1", cfgImpl.RegString[keyStr1])
-	s.Len(cfgImpl.RegInt, 1, "RegInt should have 1 entry")
-	s.Equal(100, cfgImpl.RegInt[keyInt1])
+	s.Len(cfgImpl.regString, 1, "RegString should have 1 entry")
+	s.Equal("value1", cfgImpl.regString[keyStr1])
+	s.Len(cfgImpl.regInt, 1, "RegInt should have 1 entry")
+	s.Equal(100, cfgImpl.regInt[keyInt1])
 }
 
 // TestMergeTwoOverride tests merging two configurations where the second overrides the first.
@@ -1019,12 +1019,12 @@ func (s *MergeSuite) TestMergeTwoOverride() {
 
 	cfgImpl, ok := mergedCfg.(*ConfigImpl)
 	s.Require().True(ok, "Merged config should be of type *ConfigImpl")
-	s.Len(cfgImpl.RegString, 1)
-	s.Equal("overridden_value", cfgImpl.RegString[keyStr])
-	s.Len(cfgImpl.RegInt, 1)
-	s.Equal(111, cfgImpl.RegInt[keyInt])
-	s.Len(cfgImpl.RegBool, 1)
-	s.True(cfgImpl.RegBool[keyBool])
+	s.Len(cfgImpl.regString, 1)
+	s.Equal("overridden_value", cfgImpl.regString[keyStr])
+	s.Len(cfgImpl.regInt, 1)
+	s.Equal(111, cfgImpl.regInt[keyInt])
+	s.Len(cfgImpl.regBool, 1)
+	s.True(cfgImpl.regBool[keyBool])
 }
 
 // TestMergeMultiple tests merging multiple (three) configurations with overrides.
@@ -1055,9 +1055,9 @@ func (s *MergeSuite) TestMergeMultiple() {
 
 	cfgImpl, ok := mergedCfg.(*ConfigImpl)
 	s.Require().True(ok)
-	s.Len(cfgImpl.RegString, 2) // S1, SHARED_KEY
-	s.Len(cfgImpl.RegInt, 1)    // I1
-	s.Len(cfgImpl.RegBool, 1)   // B1
+	s.Len(cfgImpl.regString, 2) // S1, SHARED_KEY
+	s.Len(cfgImpl.regInt, 1)    // I1
+	s.Len(cfgImpl.regBool, 1)   // B1
 }
 
 // TestMergeAllTypes ensures all supported types are merged correctly.
@@ -1159,23 +1159,23 @@ func (s *MergeSuite) TestMergeAllTypes() {
 
 	cfgImpl, ok := mergedCfg.(*ConfigImpl)
 	s.Require().True(ok)
-	s.Len(cfgImpl.RegString, 1)
-	s.Len(cfgImpl.RegInt, 1)
-	s.Len(cfgImpl.RegInt8, 1)
-	s.Len(cfgImpl.RegInt16, 1)
-	s.Len(cfgImpl.RegInt32, 1)
-	s.Len(cfgImpl.RegInt64, 1)
-	s.Len(cfgImpl.RegUint, 1)
-	s.Len(cfgImpl.RegUint8, 1)
-	s.Len(cfgImpl.RegUint16, 1)
-	s.Len(cfgImpl.RegUint32, 1)
-	s.Len(cfgImpl.RegUint64, 1)
-	s.Len(cfgImpl.RegUintptr, 1)
-	s.Len(cfgImpl.RegBytes, 1)
-	s.Len(cfgImpl.RegRunes, 1)
-	s.Len(cfgImpl.RegFloat32, 1)
-	s.Len(cfgImpl.RegFloat64, 1)
-	s.Len(cfgImpl.RegBool, 1)
+	s.Len(cfgImpl.regString, 1)
+	s.Len(cfgImpl.regInt, 1)
+	s.Len(cfgImpl.regInt8, 1)
+	s.Len(cfgImpl.regInt16, 1)
+	s.Len(cfgImpl.regInt32, 1)
+	s.Len(cfgImpl.regInt64, 1)
+	s.Len(cfgImpl.regUint, 1)
+	s.Len(cfgImpl.regUint8, 1)
+	s.Len(cfgImpl.regUint16, 1)
+	s.Len(cfgImpl.regUint32, 1)
+	s.Len(cfgImpl.regUint64, 1)
+	s.Len(cfgImpl.regUintptr, 1)
+	s.Len(cfgImpl.regBytes, 1)
+	s.Len(cfgImpl.regRunes, 1)
+	s.Len(cfgImpl.regFloat32, 1)
+	s.Len(cfgImpl.regFloat64, 1)
+	s.Len(cfgImpl.regBool, 1)
 }
 
 func (s *FallbackSuite) TestFallbackString() {
