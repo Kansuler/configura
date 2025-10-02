@@ -16,7 +16,7 @@ import (
 
 type ConfigSuite struct {
 	suite.Suite
-	config Config
+	config *Config
 }
 
 type LoadSuite struct {
@@ -936,29 +936,26 @@ func (s *FallbackSuite) TestFallbackBool() {
 // --- Test Methods for MergeSuite ---
 
 func (s *MergeSuite) TestMergeEmpty() {
-	mergedCfg := Merge()
-	s.Require().NotNil(mergedCfg, "Merged config should not be nil")
+	cfg := Merge()
+	s.Require().NotNil(cfg, "Merged config should not be nil")
 
-	cfgImpl, ok := mergedCfg.(*config)
-	s.Require().True(ok, "Merged config should be of type *config")
-
-	s.Empty(cfgImpl.regString, "RegString should be empty")
-	s.Empty(cfgImpl.regInt, "RegInt should be empty")
-	s.Empty(cfgImpl.regInt8, "RegInt8 should be empty")
-	s.Empty(cfgImpl.regInt16, "RegInt16 should be empty")
-	s.Empty(cfgImpl.regInt32, "RegInt32 should be empty")
-	s.Empty(cfgImpl.regInt64, "RegInt64 should be empty")
-	s.Empty(cfgImpl.regUint, "RegUint should be empty")
-	s.Empty(cfgImpl.regUint8, "RegUint8 should be empty")
-	s.Empty(cfgImpl.regUint16, "RegUint16 should be empty")
-	s.Empty(cfgImpl.regUint32, "RegUint32 should be empty")
-	s.Empty(cfgImpl.regUint64, "RegUint64 should be empty")
-	s.Empty(cfgImpl.regUintptr, "RegUintptr should be empty")
-	s.Empty(cfgImpl.regBytes, "RegBytes should be empty")
-	s.Empty(cfgImpl.regRunes, "RegRunes should be empty")
-	s.Empty(cfgImpl.regFloat32, "RegFloat32 should be empty")
-	s.Empty(cfgImpl.regFloat64, "RegFloat64 should be empty")
-	s.Empty(cfgImpl.regBool, "RegBool should be empty")
+	s.Empty(cfg.regString, "RegString should be empty")
+	s.Empty(cfg.regInt, "RegInt should be empty")
+	s.Empty(cfg.regInt8, "RegInt8 should be empty")
+	s.Empty(cfg.regInt16, "RegInt16 should be empty")
+	s.Empty(cfg.regInt32, "RegInt32 should be empty")
+	s.Empty(cfg.regInt64, "RegInt64 should be empty")
+	s.Empty(cfg.regUint, "RegUint should be empty")
+	s.Empty(cfg.regUint8, "RegUint8 should be empty")
+	s.Empty(cfg.regUint16, "RegUint16 should be empty")
+	s.Empty(cfg.regUint32, "RegUint32 should be empty")
+	s.Empty(cfg.regUint64, "RegUint64 should be empty")
+	s.Empty(cfg.regUintptr, "RegUintptr should be empty")
+	s.Empty(cfg.regBytes, "RegBytes should be empty")
+	s.Empty(cfg.regRunes, "RegRunes should be empty")
+	s.Empty(cfg.regFloat32, "RegFloat32 should be empty")
+	s.Empty(cfg.regFloat64, "RegFloat64 should be empty")
+	s.Empty(cfg.regBool, "RegBool should be empty")
 }
 
 func (s *MergeSuite) TestMergeSingle() {
@@ -974,14 +971,8 @@ func (s *MergeSuite) TestMergeSingle() {
 
 	s.Equal("value1", mergedCfg.String(keyStr))
 	s.Equal(123, mergedCfg.Int(keyInt))
-
-	// Ensure it has copied values correctly
-	cfgImpl, ok := mergedCfg.(*config)
-	s.Require().True(ok, "Merged config should be of type *config")
-	s.Equal("value1", cfgImpl.regString[keyStr])
-	s.Equal(123, cfgImpl.regInt[keyInt])
-	s.Len(cfgImpl.regString, 1)
-	s.Len(cfgImpl.regInt, 1)
+	s.Len(mergedCfg.regString, 1)
+	s.Len(mergedCfg.regInt, 1)
 }
 
 func (s *MergeSuite) TestMergeTwoDistinct() {
@@ -999,12 +990,10 @@ func (s *MergeSuite) TestMergeTwoDistinct() {
 	s.Equal("value1", mergedCfg.String(keyStr1))
 	s.Equal(100, mergedCfg.Int(keyInt1))
 
-	cfgImpl, ok := mergedCfg.(*config)
-	s.Require().True(ok, "Merged config should be of type *config")
-	s.Len(cfgImpl.regString, 1, "RegString should have 1 entry")
-	s.Equal("value1", cfgImpl.regString[keyStr1])
-	s.Len(cfgImpl.regInt, 1, "RegInt should have 1 entry")
-	s.Equal(100, cfgImpl.regInt[keyInt1])
+	s.Len(mergedCfg.regString, 1, "RegString should have 1 entry")
+	s.Equal("value1", mergedCfg.regString[keyStr1])
+	s.Len(mergedCfg.regInt, 1, "RegInt should have 1 entry")
+	s.Equal(100, mergedCfg.regInt[keyInt1])
 }
 
 func (s *MergeSuite) TestMergeTwoOverride() {
@@ -1026,14 +1015,12 @@ func (s *MergeSuite) TestMergeTwoOverride() {
 	s.Equal(111, mergedCfg.Int(keyInt))                   // From cfg1
 	s.True(mergedCfg.Bool(keyBool))                       // From cfg2
 
-	cfgImpl, ok := mergedCfg.(*config)
-	s.Require().True(ok, "Merged config should be of type *config")
-	s.Len(cfgImpl.regString, 1)
-	s.Equal("overridden_value", cfgImpl.regString[keyStr])
-	s.Len(cfgImpl.regInt, 1)
-	s.Equal(111, cfgImpl.regInt[keyInt])
-	s.Len(cfgImpl.regBool, 1)
-	s.True(cfgImpl.regBool[keyBool])
+	s.Len(mergedCfg.regString, 1)
+	s.Equal("overridden_value", mergedCfg.regString[keyStr])
+	s.Len(mergedCfg.regInt, 1)
+	s.Equal(111, mergedCfg.regInt[keyInt])
+	s.Len(mergedCfg.regBool, 1)
+	s.True(mergedCfg.regBool[keyBool])
 }
 
 func (s *MergeSuite) TestMergeMultiple() {
@@ -1061,11 +1048,9 @@ func (s *MergeSuite) TestMergeMultiple() {
 	s.Equal(222, mergedCfg.Int(keyInt1))
 	s.True(mergedCfg.Bool(keyBool1))
 
-	cfgImpl, ok := mergedCfg.(*config)
-	s.Require().True(ok)
-	s.Len(cfgImpl.regString, 2) // S1, SHARED_KEY
-	s.Len(cfgImpl.regInt, 1)    // I1
-	s.Len(cfgImpl.regBool, 1)   // B1
+	s.Len(mergedCfg.regString, 2) // S1, SHARED_KEY
+	s.Len(mergedCfg.regInt, 1)    // I1
+	s.Len(mergedCfg.regBool, 1)   // B1
 }
 
 func (s *MergeSuite) TestMergeAllTypes() {
@@ -1164,25 +1149,23 @@ func (s *MergeSuite) TestMergeAllTypes() {
 	s.Equal(vFloat32_2, mergedCfg.Float32(kFloat32))
 	s.Equal(vFloat64_2, mergedCfg.Float64(kFloat64))
 
-	cfgImpl, ok := mergedCfg.(*config)
-	s.Require().True(ok)
-	s.Len(cfgImpl.regString, 1)
-	s.Len(cfgImpl.regInt, 1)
-	s.Len(cfgImpl.regInt8, 1)
-	s.Len(cfgImpl.regInt16, 1)
-	s.Len(cfgImpl.regInt32, 1)
-	s.Len(cfgImpl.regInt64, 1)
-	s.Len(cfgImpl.regUint, 1)
-	s.Len(cfgImpl.regUint8, 1)
-	s.Len(cfgImpl.regUint16, 1)
-	s.Len(cfgImpl.regUint32, 1)
-	s.Len(cfgImpl.regUint64, 1)
-	s.Len(cfgImpl.regUintptr, 1)
-	s.Len(cfgImpl.regBytes, 1)
-	s.Len(cfgImpl.regRunes, 1)
-	s.Len(cfgImpl.regFloat32, 1)
-	s.Len(cfgImpl.regFloat64, 1)
-	s.Len(cfgImpl.regBool, 1)
+	s.Len(mergedCfg.regString, 1)
+	s.Len(mergedCfg.regInt, 1)
+	s.Len(mergedCfg.regInt8, 1)
+	s.Len(mergedCfg.regInt16, 1)
+	s.Len(mergedCfg.regInt32, 1)
+	s.Len(mergedCfg.regInt64, 1)
+	s.Len(mergedCfg.regUint, 1)
+	s.Len(mergedCfg.regUint8, 1)
+	s.Len(mergedCfg.regUint16, 1)
+	s.Len(mergedCfg.regUint32, 1)
+	s.Len(mergedCfg.regUint64, 1)
+	s.Len(mergedCfg.regUintptr, 1)
+	s.Len(mergedCfg.regBytes, 1)
+	s.Len(mergedCfg.regRunes, 1)
+	s.Len(mergedCfg.regFloat32, 1)
+	s.Len(mergedCfg.regFloat64, 1)
+	s.Len(mergedCfg.regBool, 1)
 }
 
 // --- Test Methods for CheckKeySuite ---
