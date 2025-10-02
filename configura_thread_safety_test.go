@@ -10,7 +10,7 @@ import (
 
 type ThreadSafetySuite struct {
 	suite.Suite
-	config Config
+	config *Config
 }
 
 func (s *ThreadSafetySuite) SetupTest() {
@@ -21,7 +21,7 @@ func (s *ThreadSafetySuite) runConcurrently(goroutines int, f func(i int)) {
 	var wg sync.WaitGroup
 	wg.Add(goroutines)
 
-	for i := 0; i < goroutines; i++ {
+	for i := range goroutines {
 		go func(i int) {
 			defer wg.Done()
 			f(i)
