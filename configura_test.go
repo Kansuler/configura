@@ -264,17 +264,18 @@ func (s *LoadSuite) unsetEnvVar(key string) {
 }
 
 func (s *LoadSuite) TestLoadString() {
-	cfg := New()
 	key := Variable[string]("ENV_STR")
 	fallback := "fb_str"
 	envVal := "env_str_val"
 
 	s.Run("EnvVarSet", func() {
+		cfg := New()
 		s.setEnvVar(string(key), envVal)
 		Load(cfg, key, fallback)
 		assert.Equal(s.T(), envVal, cfg.String(key))
 	})
 	s.Run("EnvVarNotSet", func() {
+		cfg := New()
 		s.unsetEnvVar(string(key))                     // Ensure it's unset for this specific sub-test
 		Load(cfg, key, fallback)                       // Use fresh config or reset
 		assert.Equal(s.T(), fallback, cfg.String(key)) // This line would fail if cfg is not reset or key re-added
@@ -755,6 +756,162 @@ func (s *LoadSuite) TestLoadRunes() {
 		freshCfg := New()
 		Load(freshCfg, key, fallback)
 		assert.Equal(s.T(), fallback, freshCfg.Runes(key))
+	})
+}
+
+func (s *LoadSuite) TestLoadDoesNotOverwriteExistingSettings() {
+	s.Run("StringType", func() {
+		cfg := New()
+		key := Variable[string]("TEST_OVERWRITE_STR")
+		originalValue := "original_value"
+		newFallback := "new_fallback"
+
+		// First, set the value using Write
+		Write(cfg, map[Variable[string]]string{key: originalValue})
+		assert.Equal(s.T(), originalValue, cfg.String(key))
+
+		// Try to Load with a different fallback - should not overwrite
+		Load(cfg, key, newFallback)
+		assert.Equal(s.T(), originalValue, cfg.String(key), "Load should not overwrite existing string value")
+
+		// Test with Load -> Load scenario
+		freshCfg := New()
+		firstFallback := "first_fallback"
+		secondFallback := "second_fallback"
+
+		Load(freshCfg, key, firstFallback)
+		assert.Equal(s.T(), firstFallback, freshCfg.String(key))
+
+		Load(freshCfg, key, secondFallback)
+		assert.Equal(s.T(), firstFallback, freshCfg.String(key), "Second Load should not overwrite first Load value")
+	})
+
+	s.Run("IntType", func() {
+		cfg := New()
+		key := Variable[int]("TEST_OVERWRITE_INT")
+		originalValue := 42
+		newFallback := 999
+
+		// First, set the value using Write
+		Write(cfg, map[Variable[int]]int{key: originalValue})
+		assert.Equal(s.T(), originalValue, cfg.Int(key))
+
+		// Try to Load with a different fallback - should not overwrite
+		Load(cfg, key, newFallback)
+		assert.Equal(s.T(), originalValue, cfg.Int(key), "Load should not overwrite existing int value")
+
+		// Test with Load -> Load scenario
+		freshCfg := New()
+		firstFallback := 100
+		secondFallback := 200
+
+		Load(freshCfg, key, firstFallback)
+		assert.Equal(s.T(), firstFallback, freshCfg.Int(key))
+
+		Load(freshCfg, key, secondFallback)
+		assert.Equal(s.T(), firstFallback, freshCfg.Int(key), "Second Load should not overwrite first Load value")
+	})
+
+	s.Run("BoolType", func() {
+		cfg := New()
+		key := Variable[bool]("TEST_OVERWRITE_BOOL")
+		originalValue := true
+		newFallback := false
+
+		// First, set the value using Write
+		Write(cfg, map[Variable[bool]]bool{key: originalValue})
+		assert.Equal(s.T(), originalValue, cfg.Bool(key))
+
+		// Try to Load with a different fallback - should not overwrite
+		Load(cfg, key, newFallback)
+		assert.Equal(s.T(), originalValue, cfg.Bool(key), "Load should not overwrite existing bool value")
+
+		// Test with Load -> Load scenario
+		freshCfg := New()
+		firstFallback := false
+		secondFallback := true
+
+		Load(freshCfg, key, firstFallback)
+		assert.Equal(s.T(), firstFallback, freshCfg.Bool(key))
+
+		Load(freshCfg, key, secondFallback)
+		assert.Equal(s.T(), firstFallback, freshCfg.Bool(key), "Second Load should not overwrite first Load value")
+	})
+
+	s.Run("Float64Type", func() {
+		cfg := New()
+		key := Variable[float64]("TEST_OVERWRITE_FLOAT64")
+		originalValue := 3.14159
+		newFallback := 2.71828
+
+		// First, set the value using Write
+		Write(cfg, map[Variable[float64]]float64{key: originalValue})
+		assert.InDelta(s.T(), originalValue, cfg.Float64(key), 0.0000001)
+
+		// Try to Load with a different fallback - should not overwrite
+		Load(cfg, key, newFallback)
+		assert.InDelta(s.T(), originalValue, cfg.Float64(key), 0.0000001, "Load should not overwrite existing float64 value")
+
+		// Test with Load -> Load scenario
+		freshCfg := New()
+		firstFallback := 1.23456
+		secondFallback := 6.54321
+
+		Load(freshCfg, key, firstFallback)
+		assert.InDelta(s.T(), firstFallback, freshCfg.Float64(key), 0.0000001)
+
+		Load(freshCfg, key, secondFallback)
+		assert.InDelta(s.T(), firstFallback, freshCfg.Float64(key), 0.0000001, "Second Load should not overwrite first Load value")
+	})
+
+	s.Run("BytesType", func() {
+		cfg := New()
+		key := Variable[[]byte]("TEST_OVERWRITE_BYTES")
+		originalValue := []byte("original_bytes")
+		newFallback := []byte("new_fallback_bytes")
+
+		// First, set the value using Write
+		Write(cfg, map[Variable[[]byte]][]byte{key: originalValue})
+		assert.Equal(s.T(), originalValue, cfg.Bytes(key))
+
+		// Try to Load with a different fallback - should not overwrite
+		Load(cfg, key, newFallback)
+		assert.Equal(s.T(), originalValue, cfg.Bytes(key), "Load should not overwrite existing bytes value")
+
+		// Test with Load -> Load scenario
+		freshCfg := New()
+		firstFallback := []byte("first_fallback")
+		secondFallback := []byte("second_fallback")
+
+		Load(freshCfg, key, firstFallback)
+		assert.Equal(s.T(), firstFallback, freshCfg.Bytes(key))
+
+		Load(freshCfg, key, secondFallback)
+		assert.Equal(s.T(), firstFallback, freshCfg.Bytes(key), "Second Load should not overwrite first Load value")
+	})
+
+	s.Run("WithEnvironmentVariables", func() {
+		cfg := New()
+		key := Variable[string]("TEST_OVERWRITE_ENV_STR")
+		originalValue := "original_value"
+		envValue := "env_value"
+		differentFallback := "different_fallback"
+
+		// First, set the value using Write
+		Write(cfg, map[Variable[string]]string{key: originalValue})
+		assert.Equal(s.T(), originalValue, cfg.String(key))
+
+		// Set environment variable
+		s.setEnvVar(string(key), envValue)
+
+		// Try to Load with environment variable set - should not overwrite existing value
+		Load(cfg, key, differentFallback)
+		assert.Equal(s.T(), originalValue, cfg.String(key), "Load should not overwrite existing value even with env var set")
+
+		// Test fresh config to verify env var would normally be used
+		freshCfg := New()
+		Load(freshCfg, key, differentFallback)
+		assert.Equal(s.T(), envValue, freshCfg.String(key), "Fresh config should use environment variable")
 	})
 }
 
