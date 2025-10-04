@@ -72,41 +72,92 @@ func Write[T constraint](cfg *Config, values map[Variable[T]]T) error {
 func Load[T constraint](cfg *Config, key Variable[T], fallback T) {
 	cfg.rwLock.Lock()
 	defer cfg.rwLock.Unlock()
-	switch any(key).(type) {
+	switch k := any(key).(type) {
 	case Variable[string]:
-		cfg.regString[any(key).(Variable[string])] = String(any(key).(Variable[string]), any(fallback).(string))
+		if _, ok := cfg.regString[k]; ok {
+			return
+		}
+		cfg.regString[k] = String(k, any(fallback).(string))
 	case Variable[int]:
-		cfg.regInt[any(key).(Variable[int])] = Int(any(key).(Variable[int]), any(fallback).(int))
+		if _, ok := cfg.regInt[k]; ok {
+			return
+		}
+		cfg.regInt[k] = Int(k, any(fallback).(int))
 	case Variable[int8]:
-		cfg.regInt8[any(key).(Variable[int8])] = Int8(any(key).(Variable[int8]), any(fallback).(int8))
+		if _, ok := cfg.regInt8[k]; ok {
+			return
+		}
+		cfg.regInt8[k] = Int8(k, any(fallback).(int8))
 	case Variable[int16]:
-		cfg.regInt16[any(key).(Variable[int16])] = Int16(any(key).(Variable[int16]), any(fallback).(int16))
+		if _, ok := cfg.regInt16[k]; ok {
+			return
+		}
+		cfg.regInt16[k] = Int16(k, any(fallback).(int16))
 	case Variable[int32]:
-		cfg.regInt32[any(key).(Variable[int32])] = Int32(any(key).(Variable[int32]), any(fallback).(int32))
+		if _, ok := cfg.regInt32[k]; ok {
+			return
+		}
+		cfg.regInt32[k] = Int32(k, any(fallback).(int32))
 	case Variable[int64]:
-		cfg.regInt64[any(key).(Variable[int64])] = Int64(any(key).(Variable[int64]), any(fallback).(int64))
+		if _, ok := cfg.regInt64[k]; ok {
+			return
+		}
+		cfg.regInt64[k] = Int64(k, any(fallback).(int64))
 	case Variable[uint]:
-		cfg.regUint[any(key).(Variable[uint])] = Uint(any(key).(Variable[uint]), any(fallback).(uint))
+		if _, ok := cfg.regUint[k]; ok {
+			return
+		}
+		cfg.regUint[k] = Uint(k, any(fallback).(uint))
 	case Variable[uint8]:
-		cfg.regUint8[any(key).(Variable[uint8])] = Uint8(any(key).(Variable[uint8]), any(fallback).(uint8))
+		if _, ok := cfg.regUint8[k]; ok {
+			return
+		}
+		cfg.regUint8[k] = Uint8(k, any(fallback).(uint8))
 	case Variable[uint16]:
-		cfg.regUint16[any(key).(Variable[uint16])] = Uint16(any(key).(Variable[uint16]), any(fallback).(uint16))
+		if _, ok := cfg.regUint16[k]; ok {
+			return
+		}
+		cfg.regUint16[k] = Uint16(k, any(fallback).(uint16))
 	case Variable[uint32]:
-		cfg.regUint32[any(key).(Variable[uint32])] = Uint32(any(key).(Variable[uint32]), any(fallback).(uint32))
+		if _, ok := cfg.regUint32[k]; ok {
+			return
+		}
+		cfg.regUint32[k] = Uint32(k, any(fallback).(uint32))
 	case Variable[uint64]:
-		cfg.regUint64[any(key).(Variable[uint64])] = Uint64(any(key).(Variable[uint64]), any(fallback).(uint64))
+		if _, ok := cfg.regUint64[k]; ok {
+			return
+		}
+		cfg.regUint64[k] = Uint64(k, any(fallback).(uint64))
 	case Variable[uintptr]:
-		cfg.regUintptr[any(key).(Variable[uintptr])] = Uintptr(any(key).(Variable[uintptr]), any(fallback).(uintptr))
+		if _, ok := cfg.regUintptr[k]; ok {
+			return
+		}
+		cfg.regUintptr[k] = Uintptr(k, any(fallback).(uintptr))
 	case Variable[[]byte]:
-		cfg.regBytes[any(key).(Variable[[]byte])] = Bytes(any(key).(Variable[[]byte]), any(fallback).([]byte))
+		if _, ok := cfg.regBytes[k]; ok {
+			return
+		}
+		cfg.regBytes[k] = Bytes(k, any(fallback).([]byte))
 	case Variable[[]rune]:
-		cfg.regRunes[any(key).(Variable[[]rune])] = Runes(any(key).(Variable[[]rune]), any(fallback).([]rune))
+		if _, ok := cfg.regRunes[k]; ok {
+			return
+		}
+		cfg.regRunes[k] = Runes(k, any(fallback).([]rune))
 	case Variable[float32]:
-		cfg.regFloat32[any(key).(Variable[float32])] = Float32(any(key).(Variable[float32]), any(fallback).(float32))
+		if _, ok := cfg.regFloat32[k]; ok {
+			return
+		}
+		cfg.regFloat32[k] = Float32(k, any(fallback).(float32))
 	case Variable[float64]:
-		cfg.regFloat64[any(key).(Variable[float64])] = Float64(any(key).(Variable[float64]), any(fallback).(float64))
+		if _, ok := cfg.regFloat64[k]; ok {
+			return
+		}
+		cfg.regFloat64[k] = Float64(k, any(fallback).(float64))
 	case Variable[bool]:
-		cfg.regBool[any(key).(Variable[bool])] = Bool(any(key).(Variable[bool]), any(fallback).(bool))
+		if _, ok := cfg.regBool[k]; ok {
+			return
+		}
+		cfg.regBool[k] = Bool(k, any(fallback).(bool))
 	}
 }
 
